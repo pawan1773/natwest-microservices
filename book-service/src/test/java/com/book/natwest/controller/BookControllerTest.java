@@ -2,8 +2,11 @@ package com.book.natwest.controller;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -32,7 +35,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(value = BookController.class)
-public class BookControllerTest {
+class BookControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -73,7 +76,7 @@ public class BookControllerTest {
 	@Test
 	void shouldAddBookWith200Status() throws JsonProcessingException, Exception {
 
-		Mockito.when(bookService.addBook(javaInAction)).thenReturn(javaInActionResponse);
+		when(bookService.addBook(javaInAction)).thenReturn(javaInActionResponse);
 
 		this.mockMvc.perform(post("/book").contentType(MediaType.APPLICATION_JSON_VALUE)
 				.accept(MediaType.APPLICATION_JSON_VALUE).content(objectMapper.writeValueAsString(javaInAction)))
@@ -138,7 +141,7 @@ public class BookControllerTest {
 	@Test
 	void shouldReturnBookWith200Status() throws JsonProcessingException, Exception {
 
-		Mockito.when(bookService.getBook(Mockito.anyLong())).thenReturn(javaInActionResponse);
+		Mockito.when(bookService.getBook(anyLong())).thenReturn(javaInActionResponse);
 
 		this.mockMvc.perform(get("/book/1").contentType(MediaType.APPLICATION_JSON_VALUE)).andExpect(status().isOk())
 				.andExpect(jsonPath("$.name", is(javaInActionResponse.getName())))
@@ -150,7 +153,7 @@ public class BookControllerTest {
 
 		final String message = "No such book with id: 3";
 
-		Mockito.when(bookService.getBook(Mockito.anyLong())).thenThrow(new BookNotFoundException(message));
+		Mockito.when(bookService.getBook(anyLong())).thenThrow(new BookNotFoundException(message));
 
 		final MvcResult mvcResult = this.mockMvc.perform(get("/book/3").contentType(MediaType.APPLICATION_JSON_VALUE))
 				.andExpect(status().isNotFound()).andReturn();
@@ -167,7 +170,7 @@ public class BookControllerTest {
 		final Map<String, String> response = new HashMap<>(1);
 		response.put("message", message);
 
-		Mockito.when(bookService.deleteBook(Mockito.anyLong())).thenReturn(response);
+		Mockito.when(bookService.deleteBook(anyLong())).thenReturn(response);
 
 		this.mockMvc.perform(delete("/book/1").contentType(MediaType.APPLICATION_JSON_VALUE)).andExpect(status().isOk())
 				.andExpect(jsonPath("$.message", is(message)));
@@ -178,7 +181,7 @@ public class BookControllerTest {
 
 		final String message = "No such book with id: 3";
 
-		Mockito.when(bookService.deleteBook(Mockito.anyLong())).thenThrow(new BookNotFoundException(message));
+		Mockito.when(bookService.deleteBook(anyLong())).thenThrow(new BookNotFoundException(message));
 
 		final MvcResult mvcResult = this.mockMvc
 				.perform(delete("/book/3").contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -192,13 +195,13 @@ public class BookControllerTest {
 	void shouldReturnPriceFor3BooksWith200Status() throws JsonProcessingException, Exception {
 
 		final Integer quantity = 3;
+		final BigDecimal total = new BigDecimal(199.33).multiply(new BigDecimal(quantity));
 		final Map<String, BigDecimal> response = new HashMap<>();
-		response.put("total", new BigDecimal(199.33).multiply(new BigDecimal(quantity)));
-		Mockito.when(bookService.getBookPrice(Mockito.anyLong(), Mockito.anyInt())).thenReturn(response);
+		response.put("total", total);
+		Mockito.when(bookService.getBookPrice(anyLong(), anyInt())).thenReturn(response);
 
 		this.mockMvc.perform(get("/book/1/quantity/" + quantity).contentType(MediaType.APPLICATION_JSON_VALUE))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.total", is(new BigDecimal(199.33).multiply(new BigDecimal(quantity)))));
+				.andExpect(status().isOk()).andExpect(jsonPath("$.total", is(total)));
 	}
 
 }

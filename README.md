@@ -21,6 +21,13 @@ This is a sample microservices project.
     ```
     mvn clean compile package
     ```
+	
+## Test
+1. Test case are written for ``book-service``. Run below command to execute test cases
+
+    ```
+    mvn test
+    ```
     
 ## Run
 1. If you are using an IDE, then you can simply run all the components Springboot application
