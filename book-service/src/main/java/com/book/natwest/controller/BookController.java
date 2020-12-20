@@ -55,6 +55,6 @@ public class BookController {
 	@GetMapping(value = "/book/{id}/quantity/{quantity}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Map<String, BigDecimal>> getBookPrice(@PathVariable("id") Long id,
 			@PathVariable("quantity") Integer quantity) {
-		return ResponseEntity.ok(bookService.getBookPrice(id, quantity));
+		return ResponseEntity.ok(bookService.getBookPriceByQuantity(id, quantity));
 	}
 }

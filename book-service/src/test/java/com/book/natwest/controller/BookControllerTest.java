@@ -198,7 +198,7 @@ class BookControllerTest {
 		final BigDecimal total = new BigDecimal(199.33).multiply(new BigDecimal(quantity));
 		final Map<String, BigDecimal> response = new HashMap<>();
 		response.put("total", total);
-		Mockito.when(bookService.getBookPrice(anyLong(), anyInt())).thenReturn(response);
+		Mockito.when(bookService.getBookPriceByQuantity(anyLong(), anyInt())).thenReturn(response);
 
 		this.mockMvc.perform(get("/book/1/quantity/" + quantity).contentType(MediaType.APPLICATION_JSON_VALUE))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.total", is(total)));

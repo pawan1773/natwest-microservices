@@ -90,10 +90,11 @@ public class BookService {
 		return response;
 	}
 
-	public Map<String, BigDecimal> getBookPrice(final Long id, final Integer quantity) {
+	public Map<String, BigDecimal> getBookPriceByQuantity(final Long id, final Integer quantity) {
 		final Book book = bookRepository.findById(id)
 				.orElseThrow(() -> new BookNotFoundException("No such book with id: " + id));
 
+		/** Invoking book-price-service via api gateway to calculate total price*/
 		final String url = "http://BOOK-PRICE-SERVICE/price/" + book.getPrice() + "/quantity/" + quantity;
 
 		final ResponseEntity<Map<String, BigDecimal>> response = restTemplate.exchange(url, HttpMethod.GET, null,

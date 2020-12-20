@@ -11,7 +11,9 @@ import static org.mockito.Mockito.anyLong;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +21,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import com.book.natwest.dto.BookDto;
@@ -108,6 +113,27 @@ class BookServiceTest {
 	}
 
 	@Test
+	void shouldDeleteBook() {
+
+		final Long id = 1L;
+
+		final Book book = new Book();
+		book.setId(id);
+		book.setName("Java in action");
+		book.setPrice(new BigDecimal(139.99));
+
+		when(bookRepository.findById(id)).thenReturn(Optional.of(book));
+
+		Map<String, String> map = bookService.deleteBook(id);
+
+		assertNotNull(map);
+
+		assertEquals("Removed book with id: 1", map.get("message"));
+
+		verify(bookRepository, times(1)).delete(book);
+	}
+
+	@Test
 	void shouldThrowBookNotFoundException() {
 		final Long id = 1L;
 
@@ -121,6 +147,14 @@ class BookServiceTest {
 
 		assertThrows(BookNotFoundException.class, () -> {
 			bookService.getBooks();
+		});
+
+		assertThrows(BookNotFoundException.class, () -> {
+			bookService.deleteBook(id);
+		});
+
+		assertThrows(BookNotFoundException.class, () -> {
+			bookService.getBookPriceByQuantity(id, 3);
 		});
 	}
 
@@ -143,5 +177,37 @@ class BookServiceTest {
 		assertNotNull(bookDtos);
 
 		verify(bookRepository, times(1)).findAll();
+	}
+
+	@Test
+	void shouldCalculateBookPriceForGivenQuantity() {
+
+		final Long id = 1L;
+
+		final Book book = new Book();
+		book.setId(id);
+		book.setName("Java in action");
+		book.setPrice(new BigDecimal(139.99));
+
+		when(bookRepository.findById(id)).thenReturn(Optional.of(book));
+
+		final Integer quantity = 3;
+		final BigDecimal total = new BigDecimal(199.33).multiply(new BigDecimal(quantity));
+		final Map<String, BigDecimal> response = new HashMap<>();
+		response.put("total", total);
+
+		final String url = "http://BOOK-PRICE-SERVICE/price/" + book.getPrice() + "/quantity/" + quantity;
+
+		when(restTemplate.exchange(url, HttpMethod.GET, null,
+				new ParameterizedTypeReference<Map<String, BigDecimal>>() {
+				})).thenReturn(ResponseEntity.ok(response));
+
+		Map<String, BigDecimal> map = bookService.getBookPriceByQuantity(id, quantity);
+
+		assertNotNull(map);
+
+		assertEquals(total, map.get("total"));
+
+		verify(bookRepository, times(1)).findById(anyLong());
 	}
 }
