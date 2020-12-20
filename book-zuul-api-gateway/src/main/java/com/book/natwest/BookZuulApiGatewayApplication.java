@@ -5,8 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 
 /**
- * This is a Zuul API gateway that acts as a proxy server for several
- * microservices.
+ * This is the starter class to run Zuul API gateway application that acts as a
+ * proxy server for several microservices.
  * 
  * @author joginder.pawan@gmail.com
  *

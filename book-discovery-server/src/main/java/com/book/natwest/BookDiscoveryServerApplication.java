@@ -5,7 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 
 /**
- * This is a Eureka discovery server to register several microservices.
+ * This is the starter class to run Eureka discovery server to register several
+ * microservices.
  * 
  * @author joginder.pawan@gmail.com
  *
